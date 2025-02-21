@@ -30,11 +30,11 @@ jobs:
 
       - name: Crear rama huérfana y commit inicial
         run: |
+          # Extraer la lista de archivos desde .clients/${{ github.event.inputs.branch_name }}
+          files=$(cat ".clients/${{ github.event.inputs.branch_name }}")
           # Crear la rama huérfana
           git checkout --orphan "${{ github.event.inputs.branch_name }}"
           git reset --hard
-          # Extraer la lista de archivos desde .clients/${{ github.event.inputs.branch_name }}
-          files=$(cat ".clients/${{ github.event.inputs.branch_name }}")
           # Hacer checkout de los archivos listados desde la rama main
           git checkout main -- $files
           # Crear un README.md y agregarlo junto con los archivos extraídos
