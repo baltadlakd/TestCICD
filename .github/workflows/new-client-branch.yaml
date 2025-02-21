@@ -40,8 +40,8 @@ jobs:
           # Crear la rama huérfana y resetear el índice
           git checkout --orphan "${{ github.event.inputs.branch_name }}"
           git reset --hard
-          # Leer el archivo copiado línea por línea y hacer checkout de cada archivo desde main
-          while IFS= read -r file; do
+          # Leer el archivo copiado línea por línea e incluir la última línea 
+          while IFS= read -r file || [ -n "$file" ]; do
             git checkout main -- "$file"
           done < "/tmp/${{ github.event.inputs.branch_name }}"
           # Realizar el commit inicial
