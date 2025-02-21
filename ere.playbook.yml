@@ -1,0 +1,6 @@
+- name: Print the string "ere"
+  hosts: localhost
+  tasks:
+    - name: Print the string "ere"
+      debug:
+        msg: "ere"

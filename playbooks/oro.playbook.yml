@@ -1,0 +1,6 @@
+- name: Print the string "oro"
+  hosts: localhost
+  tasks:
+    - name: Print the string "oro"
+      debug:
+        msg: "oro"
