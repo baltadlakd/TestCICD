@@ -46,4 +46,9 @@ jobs:
           echo "Creando rama huérfana: ${{ github.event.inputs.branch_name }}" > README.md
           git add $files README.md
           git commit -m "Commit inicial en la rama huérfana: ${{ github.event.inputs.branch_name }}"
-          git push origin "${{ github.event.inputs.branch_name }}"
+      
+      - name: Push files to the new branch
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.event.inputs.branch_name }}
