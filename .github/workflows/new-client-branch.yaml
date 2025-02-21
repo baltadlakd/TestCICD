@@ -31,7 +31,7 @@ jobs:
       - name: Crear rama huérfana y commit inicial
         run: |
           # Extraer la lista de archivos desde .clients/${{ github.event.inputs.branch_name }}
-          files=$(cat ".clients/${{ github.event.inputs.branch_name }}")
+          files=$(cat ".clients/${{ github.event.inputs.branch_name }}" | xargs)
           # Crear la rama huérfana
           git checkout --orphan "${{ github.event.inputs.branch_name }}"
           git reset --hard
