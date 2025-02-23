@@ -17,7 +17,7 @@ jobs:
       - name: Checkout completo del repositorio
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           ref: main
 
       - name: Verificar existencia del archivo cliente en .clients/
@@ -69,7 +69,7 @@ jobs:
       - name: Checkout repositorio
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           ref: ${{ needs.create_branch.outputs.new_branch }}
 
       - name: Esperar a que la rama esté disponible
