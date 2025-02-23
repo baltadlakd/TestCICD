@@ -8,8 +8,11 @@ on:
         required: true
 
 jobs:
-  create_dedicated_client_branch:
+  create_branch:
     runs-on: ubuntu-24.04
+    outputs:
+      new_branch: ${{ steps.determine_branch_name.outputs.new_branch }}
+      is_new_branch: ${{ steps.determine_branch_name.outputs.new_branch != github.event.inputs.branch_name }}
     steps:
       - name: Checkout completo del repositorio
         uses: actions/checkout@v4
@@ -48,6 +51,7 @@ jobs:
           while IFS= read -r file || [ -n "$file" ]; do
             git checkout main -- "$file"
           done < "/tmp/${{ github.event.inputs.branch_name }}"
+          git add .
           git commit -m "Initial commit for: ${{ steps.determine_branch_name.outputs.new_branch }}"
 
       - name: Push files to the new branch
@@ -55,13 +59,21 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ steps.determine_branch_name.outputs.new_branch }}
+          force: true
+
+  create_pr:
+    needs: create_branch
+    if: ${{ needs.create_branch.outputs.is_new_branch == 'true' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Esperar a que la rama esté disponible
+        run: sleep 5
 
       - name: Crear pull request hacia la rama principal del cliente
-        if: ${{ steps.determine_branch_name.outputs.new_branch != github.event.inputs.branch_name }}
         uses: peter-evans/create-pull-request@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: ${{ github.event.inputs.branch_name }}
-          branch: ${{ steps.determine_branch_name.outputs.new_branch }}
-          title: "PR: ${{ steps.determine_branch_name.outputs.new_branch }} -> ${{ github.event.inputs.branch_name }}"
-          body: "Pull request automático desde la rama ${{ steps.determine_branch_name.outputs.new_branch }}"
+          branch: ${{ needs.create_branch.outputs.new_branch }}
+          title: "PR: ${{ needs.create_branch.outputs.new_branch }} -> ${{ github.event.inputs.branch_name }}"
+          body: "Pull request automático desde la rama ${{ needs.create_branch.outputs.new_branch }}"
