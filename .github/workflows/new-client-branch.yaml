@@ -32,7 +32,7 @@ jobs:
         run: |
           if git ls-remote --exit-code --heads origin "${{ github.event.inputs.branch_name }}"; then
             echo "La rama existe, se usará nombre con sufijo."
-            commit_ref=$(git rev-parse --short HEAD)
+            commit_ref=$(git rev-parse --short origin/main)
             NEW_BRANCH="${{ github.event.inputs.branch_name }}-${commit_ref}"
           else
             NEW_BRANCH="${{ github.event.inputs.branch_name }}"
