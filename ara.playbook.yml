@@ -3,4 +3,4 @@
   tasks:
     - name: Print the string "ara"
       debug:
-        msg: "ara"
+        msg: "ara ara"
