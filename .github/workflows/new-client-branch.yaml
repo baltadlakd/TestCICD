@@ -52,6 +52,7 @@ jobs:
           while IFS= read -r file || [ -n "$file" ]; do
             git checkout origin/main -- "$file" || echo "Advertencia: Archivo $file no encontrado en main"
           done < "/tmp/${{ github.event.inputs.branch_name }}"
+          git add .
           git commit -m "Initial commit for: ${{ steps.determine_branch_name.outputs.new_branch }}"
 
       - name: Push files to the new branch
