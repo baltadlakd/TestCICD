@@ -23,12 +23,18 @@ jobs:
             exit 1
           fi
 
-      - name: Abortar si existe la rama en el repositorio
+      - name: Determinar nombre de rama
+        id: determine_branch_name
         run: |
           if git ls-remote --exit-code --heads origin "${{ github.event.inputs.branch_name }}"; then
-            echo "Error: La rama ${{ github.event.inputs.branch_name }} ya existe. Abortando."
-            exit 1
+            echo "La rama existe, se usará nombre con sufijo."
+            commit_ref=$(git rev-parse --short HEAD)
+            NEW_BRANCH="${{ github.event.inputs.branch_name }}-${commit_ref}"
+          else
+            NEW_BRANCH="${{ github.event.inputs.branch_name }}"
           fi
+          echo "NEW_BRANCH=${NEW_BRANCH}"
+          echo "new_branch=${NEW_BRANCH}" >> $GITHUB_OUTPUT
 
       - name: Set up git configuration
         run: |
@@ -37,19 +43,25 @@ jobs:
 
       - name: Crear rama de cliente y commit inicial
         run: |
-          # Copiar el archivo de cliente a un directorio temporal para preservarlo
           cp ".clients/${{ github.event.inputs.branch_name }}" "/tmp/${{ github.event.inputs.branch_name }}"
-          # Crear la rama de cliente
-          git switch --orphan "${{ github.event.inputs.branch_name }}"
-          # Leer el archivo copiado línea por línea e incluir la última línea 
+          git switch --orphan "${{ steps.determine_branch_name.outputs.new_branch }}"
           while IFS= read -r file || [ -n "$file" ]; do
             git checkout main -- "$file"
           done < "/tmp/${{ github.event.inputs.branch_name }}"
-          # Realizar el commit inicial
-          git commit -m "Initial commit for: ${{ github.event.inputs.branch_name }}"
-      
+          git commit -m "Initial commit for: ${{ steps.determine_branch_name.outputs.new_branch }}"
+
       - name: Push files to the new branch
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.event.inputs.branch_name }}
+          branch: ${{ steps.determine_branch_name.outputs.new_branch }}
+
+      - name: Crear pull request hacia la rama principal del cliente
+        if: ${{ steps.determine_branch_name.outputs.new_branch != github.event.inputs.branch_name }}
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: ${{ github.event.inputs.branch_name }}
+          branch: ${{ steps.determine_branch_name.outputs.new_branch }}
+          title: "PR: ${{ steps.determine_branch_name.outputs.new_branch }} -> ${{ github.event.inputs.branch_name }}"
+          body: "Pull request automático desde la rama ${{ steps.determine_branch_name.outputs.new_branch }}"
