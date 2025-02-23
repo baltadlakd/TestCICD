@@ -16,13 +16,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Verificar existencia del archivo cliente y que no exista la rama
+      - name: Verificar existencia del archivo cliente en .clients/
         run: |
           if [ ! -f ".clients/${{ github.event.inputs.branch_name }}" ]; then
             echo "Error: El archivo .clients/${{ github.event.inputs.branch_name }} no existe. Abortando."
             exit 1
           fi
-          # Verificar que la rama no existe 
+
+      - name: Abortar si existe la rama en el repositorio
+        run: |
           if git ls-remote --exit-code --heads origin "${{ github.event.inputs.branch_name }}"; then
             echo "Error: La rama ${{ github.event.inputs.branch_name }} ya existe. Abortando."
             exit 1
@@ -33,13 +35,12 @@ jobs:
           git config --global user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
 
-      - name: Crear rama huérfana y commit inicial
+      - name: Crear rama de cliente y commit inicial
         run: |
           # Copiar el archivo de cliente a un directorio temporal para preservarlo
           cp ".clients/${{ github.event.inputs.branch_name }}" "/tmp/${{ github.event.inputs.branch_name }}"
-          # Crear la rama huérfana y resetear el índice
-          git checkout --orphan "${{ github.event.inputs.branch_name }}"
-          git reset --hard
+          # Crear la rama de cliente
+          git switch --orphan "${{ github.event.inputs.branch_name }}"
           # Leer el archivo copiado línea por línea e incluir la última línea 
           while IFS= read -r file || [ -n "$file" ]; do
             git checkout main -- "$file"
