@@ -18,6 +18,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: main
 
       - name: Verificar existencia del archivo cliente en .clients/
         run: |
@@ -49,9 +50,8 @@ jobs:
           cp ".clients/${{ github.event.inputs.branch_name }}" "/tmp/${{ github.event.inputs.branch_name }}"
           git switch --orphan "${{ steps.determine_branch_name.outputs.new_branch }}"
           while IFS= read -r file || [ -n "$file" ]; do
-            git checkout main -- "$file"
+            git checkout origin/main -- "$file" || echo "Advertencia: Archivo $file no encontrado en main"
           done < "/tmp/${{ github.event.inputs.branch_name }}"
-          git add .
           git commit -m "Initial commit for: ${{ steps.determine_branch_name.outputs.new_branch }}"
 
       - name: Push files to the new branch
