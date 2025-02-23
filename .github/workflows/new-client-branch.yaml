@@ -66,6 +66,12 @@ jobs:
     if: ${{ needs.create_branch.outputs.is_new_branch == 'true' }}
     runs-on: ubuntu-24.04
     steps:
+      - name: Checkout repositorio
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.create_branch.outputs.new_branch }}
+
       - name: Esperar a que la rama esté disponible
         run: sleep 5
 
@@ -77,3 +83,4 @@ jobs:
           branch: ${{ needs.create_branch.outputs.new_branch }}
           title: "PR: ${{ needs.create_branch.outputs.new_branch }} -> ${{ github.event.inputs.branch_name }}"
           body: "Pull request automático desde la rama ${{ needs.create_branch.outputs.new_branch }}"
+          commit-message: "Actualización automática de rama cliente"
