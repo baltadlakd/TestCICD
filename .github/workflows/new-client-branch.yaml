@@ -87,7 +87,7 @@ jobs:
           sleep 5
 
       - name: Crear pull request hacia la rama principal del cliente
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: ${{ github.event.inputs.branch_name }}
