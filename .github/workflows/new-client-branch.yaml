@@ -87,8 +87,8 @@ jobs:
         uses: peter-evans/create-pull-request@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          base: ${{ github.event.inputs.branch_name }}
-          branch: ${{ needs.create_branch.outputs.new_branch }}
+          base: ${{ needs.create_branch.outputs.new_branch }}
+          branch: ${{ github.event.inputs.branch_name }}
           title: "PR: ${{ needs.create_branch.outputs.new_branch }} -> ${{ github.event.inputs.branch_name }}"
           body: "Pull request automático desde la rama ${{ needs.create_branch.outputs.new_branch }}"
           commit-message: "Actualización automática de rama cliente"
