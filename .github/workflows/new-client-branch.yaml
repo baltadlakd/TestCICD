@@ -51,7 +51,7 @@ jobs:
           ls /tmp/
           NEW_BRANCH="${{ steps.determine_branch_name.outputs.new_branch }}"
           if [[ "$NEW_BRANCH" == *_* ]]; then
-            git checkout "${{ github.event.inputs.branch_name }}"
+            git checkout "origin/${{ github.event.inputs.branch_name }}"
             git checkout -b "$NEW_BRANCH"
           else
             git switch --orphan "$NEW_BRANCH"
