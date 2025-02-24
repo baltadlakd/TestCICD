@@ -18,6 +18,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
+          fetch-depth: 0
 
       - name: Verificar existencia del archivo cliente en .clients/
         run: |
@@ -47,12 +48,9 @@ jobs:
       - name: Crear rama de cliente y commit inicial
         run: |
           cp ".clients/${{ github.event.inputs.branch_name }}" "/tmp/${{ github.event.inputs.branch_name }}"
-          ls /tmp/
-          git fetch --all
+          # git fetch --all
           NEW_BRANCH="${{ steps.determine_branch_name.outputs.new_branch }}"
           if [[ "$NEW_BRANCH" == *_* ]]; then
-            echo "la rama ${{ github.event.inputs.branch_name }} ya existe, se creará una nueva rama con sufijo"
-            ls -la
             git checkout "origin/${{ github.event.inputs.branch_name }}"
             git checkout -b "$NEW_BRANCH"
           else
