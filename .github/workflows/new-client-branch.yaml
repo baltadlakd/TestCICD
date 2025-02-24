@@ -65,7 +65,7 @@ jobs:
 
   create_pr:
     needs: create_branch
-    if: ${{ needs.create_branch.outputs.is_new_branch == 'true' }}
+    if: false
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repositorio
