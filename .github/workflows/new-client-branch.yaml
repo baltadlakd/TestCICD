@@ -48,13 +48,18 @@ jobs:
       - name: Crear rama de cliente y commit inicial
         run: |
           cp ".clients/${{ github.event.inputs.branch_name }}" "/tmp/${{ github.event.inputs.branch_name }}"
-          git switch --orphan "${{ steps.determine_branch_name.outputs.new_branch }}"
+          NEW_BRANCH="${{ steps.determine_branch_name.outputs.new_branch }}"
+          if [[ "$NEW_BRANCH" == *_* ]]; then
+            git checkout "${{ github.event.inputs.branch_name }}"
+            git checkout -b "$NEW_BRANCH"
+          else
+            git switch --orphan "$NEW_BRANCH"
+          fi
           while IFS= read -r file || [ -n "$file" ]; do
             git checkout origin/main -- "$file" || echo "Advertencia: Archivo $file no encontrado en main"
-            cat "$file"
+            git add "$file"
           done < "/tmp/${{ github.event.inputs.branch_name }}"
-          git add .
-          git commit -m "Initial commit for: ${{ steps.determine_branch_name.outputs.new_branch }}"
+          git commit -m "Initial commit for: $NEW_BRANCH"
 
       - name: Push files to the new branch
         uses: ad-m/github-push-action@master
