@@ -74,18 +74,6 @@ jobs:
     if: ${{ needs.create_branch.outputs.is_new_branch == 'true' }}
     runs-on: ubuntu-24.04
     steps:
-      - name: Checkout repositorio
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-          ref: ${{ needs.create_branch.outputs.new_branch }}
-
-      - name: Esperar a que la rama esté disponible
-        run: |
-          echo "new_branch: ${{ needs.create_branch.outputs.new_branch }}"
-          echo "is_new_branch: ${{ needs.create_branch.outputs.is_new_branch }}"
-          sleep 5
-      
       - name: Open PR
         id: open_pr
         uses: rematocorp/open-pull-request-action@v1
@@ -93,8 +81,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           from-branch: ${{ needs.create_branch.outputs.new_branch }}
           to-branch: ${{ github.event.inputs.branch_name }}
-          repository-owner: baltadlakd
-          repository: TestCICD
+          repository-owner: ${{ github.repository_owner }}
+          repository: ${{ github.repository }}
           
-      - name: Echo mergeable PR number
-        run: echo ${{ steps.open_pr.outputs.pull_number }}
