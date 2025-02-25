@@ -80,30 +80,20 @@ jobs:
           fetch-depth: 1
           ref: ${{ needs.create_branch.outputs.new_branch }}
 
-      - name: Forzar diferencia para el Pull Request
-        run: |
-          echo "Forzada creación del PR" > forzar_pr.txt
-          git add forzar_pr.txt
-          git commit -m "Commit para forzar el PR" || echo "No hay cambios que commitear"
-          git push origin HEAD:${{ needs.create_branch.outputs.new_branch }}
-
       - name: Esperar a que la rama esté disponible
         run: |
           echo "new_branch: ${{ needs.create_branch.outputs.new_branch }}"
           echo "is_new_branch: ${{ needs.create_branch.outputs.is_new_branch }}"
           sleep 5
-
-      - name: Crear pull request hacia la rama principal del cliente
-        id: create_pr
-        uses: peter-evans/create-pull-request@v7
+      
+      - name: Open PR
+        id: open_pr
+        uses: rematocorp/open-pull-request-action@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          base: ${{ github.event.inputs.branch_name }}   # destino: c1
-          branch: ${{ needs.create_branch.outputs.new_branch }}  # fuente: c1-ref
-          title: "PR: ${{ needs.create_branch.outputs.new_branch }} -> ${{ github.event.inputs.branch_name }}"
-          body: "Pull request automático desde la rama ${{ needs.create_branch.outputs.new_branch }} hacia ${{ github.event.inputs.branch_name }}"
-          commit-message: "Actualización automática de rama cliente"
-          draft: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          from-branch: ${{ needs.create_branch.outputs.new_branch }}
+          to-branch: ${{ github.event.inputs.branch_name }}
+          
+      - name: Echo mergeable PR number
+        run: echo ${{ steps.open_pr.outputs.pull_number }}
 
-      - name: Imprimir URL del Pull Request
-        run: echo "Pull request URL ${{ steps.create_pr.outputs.pull_request_url }}"
