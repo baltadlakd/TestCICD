@@ -74,6 +74,9 @@ jobs:
     if: ${{ needs.create_branch.outputs.is_new_branch == 'true' }}
     runs-on: ubuntu-24.04
     steps:
+      - name: Esperar a que la rama esté disponible
+        run: sleep 5
+      
       - name: Open PR
         id: open_pr
         uses: rematocorp/open-pull-request-action@v1
