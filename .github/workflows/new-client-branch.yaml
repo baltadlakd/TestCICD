@@ -80,6 +80,13 @@ jobs:
           fetch-depth: 1
           ref: ${{ needs.create_branch.outputs.new_branch }}
 
+      - name: Forzar diferencia para el Pull Request
+        run: |
+          echo "Forzada creación del PR" > forzar_pr.txt
+          git add forzar_pr.txt
+          git commit -m "Commit para forzar el PR" || echo "No hay cambios que commitear"
+          git push origin HEAD:${{ needs.create_branch.outputs.new_branch }}
+
       - name: Esperar a que la rama esté disponible
         run: |
           echo "new_branch: ${{ needs.create_branch.outputs.new_branch }}"
@@ -91,7 +98,6 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          # El PR se crea de c1-ref (rama creada) hacia c1 (rama del input)
           base: ${{ github.event.inputs.branch_name }}   # destino: c1
           branch: ${{ needs.create_branch.outputs.new_branch }}  # fuente: c1-ref
           title: "PR: ${{ needs.create_branch.outputs.new_branch }} -> ${{ github.event.inputs.branch_name }}"
