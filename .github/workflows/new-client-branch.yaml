@@ -74,16 +74,21 @@ jobs:
     if: ${{ needs.create_branch.outputs.is_new_branch == 'true' }}
     runs-on: ubuntu-24.04
     steps:
-      - name: Esperar a que la rama esté disponible
-        run: sleep 5
-      
-      - name: Open PR
-        id: open_pr
-        uses: rematocorp/open-pull-request-action@v1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          from-branch: ${{ needs.create_branch.outputs.new_branch }}
-          to-branch: ${{ github.event.inputs.branch_name }}
-          
-          repository: ${{ github.repository }}
-          
+      - name: Create Pull Request using GitHub API
+        id: create_pr
+        run: |
+          PR_TITLE="Pull Request for branch ${{ needs.create_branch.outputs.new_branch }}"
+          PR_BODY="Automatically created pull request for branch ${{ needs.create_branch.outputs.new_branch }}."
+          API_URL="https://api.github.com/repos/${{ github.repository }}/pulls"
+          PAYLOAD=$(jq -n \
+            --arg title "$PR_TITLE" \
+            --arg head "${{ needs.create_branch.outputs.new_branch }}" \
+            --arg base "${{ github.event.inputs.branch_name }}" \
+            --arg body "$PR_BODY" \
+            '{title: $title, head: $head, base: $base, body: $body}')
+          echo "Creating pull request with payload: $PAYLOAD"
+          curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+               -H "Content-Type: application/json" \
+               -d "$PAYLOAD" \
+               $API_URL
+
