@@ -93,7 +93,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           from-branch: ${{ needs.create_branch.outputs.new_branch }}
           to-branch: ${{ github.event.inputs.branch_name }}
+          repository-owner: baltadlakd
+          repository: TestCICD
           
       - name: Echo mergeable PR number
         run: echo ${{ steps.open_pr.outputs.pull_number }}
-
