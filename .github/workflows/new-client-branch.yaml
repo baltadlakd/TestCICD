@@ -87,12 +87,16 @@ jobs:
           sleep 5
 
       - name: Crear pull request hacia la rama principal del cliente
+        id: create_pr
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          base: ${{ needs.create_branch.outputs.new_branch }}
-          branch: ${{ github.event.inputs.branch_name }}
+          base: ${{ github.event.inputs.branch_name }}   # destination branch
+          branch: ${{ needs.create_branch.outputs.new_branch }}  # source branch
           title: "PR: ${{ needs.create_branch.outputs.new_branch }} -> ${{ github.event.inputs.branch_name }}"
           body: "Pull request automático desde la rama ${{ needs.create_branch.outputs.new_branch }}"
           commit-message: "Actualización automática de rama cliente"
-          draft: true
+          draft: false
+
+      - name: Imprimir URL del Pull Request
+        run: echo "Pull request URL: ${{ steps.create_pr.outputs.pull_request_url }}"
