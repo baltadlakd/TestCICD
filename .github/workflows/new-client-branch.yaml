@@ -99,4 +99,4 @@ jobs:
           draft: false
 
       - name: Imprimir URL del Pull Request
-        run: echo "Pull request URL: ${{ steps.create_pr.outputs.pull_request_url }}"
+        run: echo "Pull request URL ${{ steps.create_pr.outputs.pull_request_url }}"
