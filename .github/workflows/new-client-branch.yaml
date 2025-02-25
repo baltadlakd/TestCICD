@@ -84,6 +84,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           from-branch: ${{ needs.create_branch.outputs.new_branch }}
           to-branch: ${{ github.event.inputs.branch_name }}
-          repository-owner: ${{ github.repository_owner }}
+          
           repository: ${{ github.repository }}
           
