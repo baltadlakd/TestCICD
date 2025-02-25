@@ -91,10 +91,11 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          base: ${{ github.event.inputs.branch_name }}   # destination branch
-          branch: ${{ needs.create_branch.outputs.new_branch }}  # source branch
+          # El PR se crea de c1-ref (rama creada) hacia c1 (rama del input)
+          base: ${{ github.event.inputs.branch_name }}   # destino: c1
+          branch: ${{ needs.create_branch.outputs.new_branch }}  # fuente: c1-ref
           title: "PR: ${{ needs.create_branch.outputs.new_branch }} -> ${{ github.event.inputs.branch_name }}"
-          body: "Pull request automático desde la rama ${{ needs.create_branch.outputs.new_branch }}"
+          body: "Pull request automático desde la rama ${{ needs.create_branch.outputs.new_branch }} hacia ${{ github.event.inputs.branch_name }}"
           commit-message: "Actualización automática de rama cliente"
           draft: false
 
