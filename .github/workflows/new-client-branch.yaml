@@ -74,44 +74,16 @@ jobs:
     if: ${{ needs.create_branch.outputs.is_new_branch == 'true' }}
     runs-on: ubuntu-24.04
     steps:
-      - name: checkout the repo in the branch_name
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.branch_name }}
-          fetch-depth: 0
-      
-      - name: create pull request from new branch to branch_name
-        uses: peter-evans/create-pull-request@v7
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Create pull request from ${{ needs.create_branch.outputs.new_branch }} to ${{ github.event.inputs.branch_name }}"
-          title: "PR: ${{ needs.create_branch.outputs.new_branch }} -> ${{ github.event.inputs.branch_name }}"
-          body: "Automatically created pull request for branch ${{ needs.create_branch.outputs.new_branch }}."
-          branch: ${{ needs.create_branch.outputs.new_branch }}
-          assignees: ${{ github.actor }}
-          reviewers: ${{ github.actor }}
-
-  create_prxd:
-    needs: create_branch
-    if: false
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Create Pull Request using GitHub API
-        id: create_pr
-        run: |
-          PR_TITLE="PR: ${{ needs.create_branch.outputs.new_branch }} -> ${{ github.event.inputs.branch_name }}"
-          PR_BODY="Automatically created pull request for branch ${{ needs.create_branch.outputs.new_branch }}."
-          API_URL="https://api.github.com/repos/${{ github.repository }}/pulls"
-          PAYLOAD=$(jq -n \
-            --arg title "$PR_TITLE" \
-            --arg head "${{ needs.create_branch.outputs.new_branch }}" \
-            --arg base "${{ github.event.inputs.branch_name }}" \
-            --arg body "$PR_BODY" \
-            --arg assignee "${{ github.actor }}" \
-            '{title: $title, head: $head, base: $base, body: $body, assignees: [$assignee]}')
-          echo "Creating pull request with payload: $PAYLOAD"
-          curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-               -H "Content-Type: application/json" \
-               -d "$PAYLOAD" \
-               $API_URL
+      - name: Create Pull Request using GitHub CLI
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_TITLE: "PR: ${{ needs.create_branch.outputs.new_branch }} -> ${{ github.event.inputs.branch_name }}"
+          PR_BODY: "Automatically created pull request for branch ${{ needs.create_branch.outputs.new_branch }}"
+        run: gh pr create \
+          --title "$PR_TITLE" \
+          --body "$PR_BODY" \
+          --base "${{ github.event.inputs.branch_name }}" \
+          --head "${{ needs.create_branch.outputs.new_branch }}" \
+          --assignee "${{ github.actor }}" \
+          --reviewer "${{ github.actor }}"
 
