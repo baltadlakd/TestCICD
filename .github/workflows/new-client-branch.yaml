@@ -74,6 +74,28 @@ jobs:
     if: ${{ needs.create_branch.outputs.is_new_branch == 'true' }}
     runs-on: ubuntu-24.04
     steps:
+      - name: checkout the repo in the branch_name
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch_name }}
+          fetch-depth: 0
+      
+      - name: create pull request from new branch to branch_name
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Create pull request from ${{ needs.create_branch.outputs.new_branch }} to ${{ github.event.inputs.branch_name }}"
+          title: "PR: ${{ needs.create_branch.outputs.new_branch }} -> ${{ github.event.inputs.branch_name }}"
+          body: "Automatically created pull request for branch ${{ needs.create_branch.outputs.new_branch }}."
+          branch: ${{ needs.create_branch.outputs.new_branch }}
+          assignees: ${{ github.actor }}
+          reviewers: ${{ github.actor }}
+
+  create_pr:
+    needs: create_branch
+    if: false
+    runs-on: ubuntu-24.04
+    steps:
       - name: Create Pull Request using GitHub API
         id: create_pr
         run: |
