@@ -91,7 +91,7 @@ jobs:
           assignees: ${{ github.actor }}
           reviewers: ${{ github.actor }}
 
-  create_pr:
+  create_prxd:
     needs: create_branch
     if: false
     runs-on: ubuntu-24.04
