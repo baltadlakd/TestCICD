@@ -77,7 +77,7 @@ jobs:
       - name: Create Pull Request using GitHub CLI
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_TITLE: "PR: ${{ needs.create_branch.outputs.new_branch }} -> ${{ github.event.inputs.branch_name }}"
+          PR_TITLE: 'PR: ${{ needs.create_branch.outputs.new_branch }} -> ${{ github.event.inputs.branch_name }}'
           PR_BODY: "Automatically created pull request for branch ${{ needs.create_branch.outputs.new_branch }}"
         run: gh pr create \
           --title $PR_TITLE \
