@@ -80,10 +80,10 @@ jobs:
           PR_TITLE: "PR: ${{ needs.create_branch.outputs.new_branch }} -> ${{ github.event.inputs.branch_name }}"
           PR_BODY: "Automatically created pull request for branch ${{ needs.create_branch.outputs.new_branch }}"
         run: gh pr create \
-          --title "$PR_TITLE" \
-          --body "$PR_BODY" \
-          --base "${{ github.event.inputs.branch_name }}" \
-          --head "${{ needs.create_branch.outputs.new_branch }}" \
-          --assignee "${{ github.actor }}" \
-          --reviewer "${{ github.actor }}"
+          --title $PR_TITLE \
+          --body $PR_BODY \
+          --base ${{ github.event.inputs.branch_name }} \
+          --head ${{ needs.create_branch.outputs.new_branch }} \
+          --assignee ${{ github.actor }} \
+          --reviewer ${{ github.actor }}
 
