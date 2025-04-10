@@ -1,4 +1,5 @@
-name: Crear rama dedicada a cliente
+name: Crear o actualizar rama de cliente
+description: Crear o actualizar una rama de cliente a partir de un archivo en .clients/
 
 on:
   workflow_dispatch:
