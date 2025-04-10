@@ -10,6 +10,7 @@ on:
 
 jobs:
   create_branch:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     outputs:
       new_branch: ${{ steps.determine_branch_name.outputs.new_branch }}
@@ -71,7 +72,7 @@ jobs:
 
   create_pr:
     needs: create_branch
-    if: ${{ needs.create_branch.outputs.create_pr == 'true' }}
+    if: github.ref == 'refs/heads/main' && ${{ needs.create_branch.outputs.create_pr == 'true' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout de la rama base
