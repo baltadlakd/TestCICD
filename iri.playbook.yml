@@ -1,0 +1,6 @@
+- name: Print the string "iri"
+  hosts: localhost
+  tasks:
+    - name: Print the string "iri"
+      debug:
+        msg: "iri"
