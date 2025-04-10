@@ -50,7 +50,8 @@ jobs:
         run: |
           cp ".clients/${{ github.event.inputs.branch_name }}" "/tmp/${{ github.event.inputs.branch_name }}"
           NEW_BRANCH="${{ steps.determine_branch_name.outputs.new_branch }}"
-          if [[ "$NEW_BRANCH" == *_* ]]; then
+          CREATE_PR="${{  steps.determine_branch_name.outputs.create_pr }}"
+          if [[ "$CREATE_PR" == 'true' ]]; then
             git checkout "origin/${{ github.event.inputs.branch_name }}"
             git checkout -b "$NEW_BRANCH"
           else
