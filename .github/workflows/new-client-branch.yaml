@@ -31,12 +31,12 @@ jobs:
       - name: Generar nombre para la nueva rama
         id: determine_branch_name
         run: |
-          if git ls-remote --exit-code --heads origin "clients/${{ github.event.inputs.branch_name }}/branch_name"; then
+          if git ls-remote --exit-code --heads origin "clients/${{ github.event.inputs.branch_name }}"; then
             echo "La rama existe, se usará nombre con sufijo."
             commit_ref=$(git rev-parse --short origin/main)
-            NEW_BRANCH="clients/${{ github.event.inputs.branch_name }}/branch_name_${commit_ref}"
+            NEW_BRANCH="clients/${{ github.event.inputs.branch_name }}_${commit_ref}"
           else
-            NEW_BRANCH="clients/${{ github.event.inputs.branch_name }}/branch_name"
+            NEW_BRANCH="clients/${{ github.event.inputs.branch_name }}"
           fi
           echo "NEW_BRANCH=${NEW_BRANCH}"
           echo "new_branch=${NEW_BRANCH}" >> $GITHUB_OUTPUT
@@ -78,7 +78,7 @@ jobs:
       - name: Checkout de la rama base
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch_name }}
+          ref: "clients/${{ github.event.inputs.branch_name }}"
           fetch-depth: 0
       - name: Crear Pull Request utilizando GitHub CLI
         env:
