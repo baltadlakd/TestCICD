@@ -52,7 +52,7 @@ jobs:
           NEW_BRANCH="${{ steps.determine_branch_name.outputs.new_branch }}"
           CREATE_PR="${{  steps.determine_branch_name.outputs.create_pr }}"
           if [[ "$CREATE_PR" == 'true' ]]; then
-            git checkout "origin/${{ github.event.inputs.branch_name }}"
+            git checkout "origin/clients/${{ github.event.inputs.branch_name }}"
             git checkout -b "$NEW_BRANCH"
           else
             git switch --orphan "$NEW_BRANCH"
