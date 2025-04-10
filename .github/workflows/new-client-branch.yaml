@@ -12,43 +12,42 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       new_branch: ${{ steps.determine_branch_name.outputs.new_branch }}
-      is_new_branch: ${{ steps.determine_branch_name.outputs.new_branch != github.event.inputs.branch_name }}
+      create_pr: ${{ steps.determine_branch_name.outputs.new_branch != github.event.inputs.branch_name }}
     steps:
-      - name: Checkout completo del repositorio
+      - name: Checkout del repositorio principal
         uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
 
-      - name: Verificar existencia del archivo cliente en .clients/
+      - name: Validar existencia del archivo del cliente en .clients/
         run: |
           if [ ! -f ".clients/${{ github.event.inputs.branch_name }}" ]; then
             echo "Error: El archivo .clients/${{ github.event.inputs.branch_name }} no existe. Abortando."
             exit 1
           fi
 
-      - name: Determinar nombre de rama
+      - name: Generar nombre para la nueva rama
         id: determine_branch_name
         run: |
-          if git ls-remote --exit-code --heads origin "${{ github.event.inputs.branch_name }}"; then
+          if git ls-remote --exit-code --heads origin "clients/${{ github.event.inputs.branch_name }}/branch_name"; then
             echo "La rama existe, se usará nombre con sufijo."
             commit_ref=$(git rev-parse --short origin/main)
-            NEW_BRANCH="${{ github.event.inputs.branch_name }}_${commit_ref}"
+            NEW_BRANCH="clients/${{ github.event.inputs.branch_name }}/branch_name_${commit_ref}"
           else
-            NEW_BRANCH="${{ github.event.inputs.branch_name }}"
+            NEW_BRANCH="clients/${{ github.event.inputs.branch_name }}/branch_name"
           fi
           echo "NEW_BRANCH=${NEW_BRANCH}"
           echo "new_branch=${NEW_BRANCH}" >> $GITHUB_OUTPUT
 
-      - name: Set up git configuration
+      - name: Configurar git para el usuario actual
         run: |
           git config --global user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
 
-      - name: Crear rama de cliente y commit inicial
+      - name: Crear nueva rama y realizar commit inicial
         run: |
           cp ".clients/${{ github.event.inputs.branch_name }}" "/tmp/${{ github.event.inputs.branch_name }}"
-          # git fetch --all
           NEW_BRANCH="${{ steps.determine_branch_name.outputs.new_branch }}"
           if [[ "$NEW_BRANCH" == *_* ]]; then
             git checkout "origin/${{ github.event.inputs.branch_name }}"
@@ -62,7 +61,7 @@ jobs:
           done < "/tmp/${{ github.event.inputs.branch_name }}"
           git commit -m "Initial commit for: $NEW_BRANCH"
 
-      - name: Push files to the new branch
+      - name: Subir cambios a la nueva rama
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -71,15 +70,15 @@ jobs:
 
   create_pr:
     needs: create_branch
-    if: ${{ needs.create_branch.outputs.is_new_branch == 'true' }}
+    if: ${{ needs.create_branch.outputs.create_pr == 'true' }}
     runs-on: ubuntu-24.04
     steps:
-      - name: Checkout completo del repositorio
+      - name: Checkout de la rama base
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.branch_name }}
           fetch-depth: 0
-      - name: Create Pull Request using GitHub CLI
+      - name: Crear Pull Request utilizando GitHub CLI
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_TITLE: "PR: ${{ needs.create_branch.outputs.new_branch }} -> ${{ github.event.inputs.branch_name }}"
